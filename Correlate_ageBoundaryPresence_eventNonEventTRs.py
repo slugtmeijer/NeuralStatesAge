@@ -4,6 +4,10 @@ from scipy.io import loadmat
 import nibabel as nib
 from scipy import stats
 from scipy.stats import spearmanr
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import linregress
 
 # Directories
 base_dir = '/home/sellug/wrkgrp/Selma/CamCAN_movie/'
@@ -74,9 +78,49 @@ for SL in range(nregs):
                                                                                             mean_selected_binbounds_nonevents[
                                                                                             SL, :])
 
+mean_age_boundaryPresence_events = np.mean(age_boundaryPresence_events)
+print("Mean correlation Age group x Boundary Presence for Events:", mean_age_boundaryPresence_events)
+mean_age_boundaryPresence_nonevents = np.mean(age_boundaryPresence_nonevents)
+print("Mean correlation Age group x Boundary Presence for NonEvents:", mean_age_boundaryPresence_nonevents)
+
+# PLot correlation
+# Compute the mean boundary presence for each age group
+mean_boundary_presence_events = mean_selected_binbounds_events.mean(axis=0)
+mean_boundary_presence_nonevents = mean_selected_binbounds_nonevents.mean(axis=0)
+
+# Create the scatter plot
+plt.figure(figsize=(10, 6))
+
+# Scatter points for events
+scatter_events = plt.scatter(group, mean_boundary_presence_events, color='blue', alpha=0.7, label='Events')
+# Scatter points for non-events
+scatter_nonevents = plt.scatter(group, mean_boundary_presence_nonevents, color='green', alpha=0.7, label='Non-Events')
+
+# Custom legend handles for correlation
+correlation_events = plt.Line2D([], [], color='blue', marker='o', linestyle='None', markersize=6,
+                               label=r'Events $r_s$: {:.2f}'.format(mean_age_boundaryPresence_events))
+correlation_nonevents = plt.Line2D([], [], color='green', marker='o', linestyle='None', markersize=6,
+                                  label=r'Non-Events $r_s$: {:.2f}'.format(mean_age_boundaryPresence_nonevents))
+
+
+
+# Combine handles for the legend
+handles = [correlation_events, correlation_nonevents]
+
+# Add combined legend with explicit handles
+plt.legend(handles=handles, loc='upper right', frameon=True, fontsize=14)
+
+plt.xlabel('Age group', fontsize=16)
+plt.ylabel('Mean boundary presence', fontsize=16)
+plt.title('Mean boundary presence across searchlights by age group for events and non-events', fontsize=16)
+plt.tick_params(axis='both', which='major', labelsize=14)
+plt.savefig(save_dir + 'mean_boundary_presence_by_age.pdf', format='pdf', dpi=300)
+plt.show()
+
+
 diff_boundaryPresence = age_boundaryPresence_events - age_boundaryPresence_nonevents
 
-# Plotting
+# Plot on brain
 # From SL to voxel to create .niis
 x_max, y_max, z_max = img.shape
 counter = np.zeros((x_max, y_max, z_max))
@@ -121,4 +165,3 @@ correlation_nonevents, p_value_nonevents = spearmanr(age_boundaryPresence_noneve
 print("Correlation NonEvents:", correlation_nonevents)
 print("P-value NonEvents:", p_value_nonevents)
 
-print

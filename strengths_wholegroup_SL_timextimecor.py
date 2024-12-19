@@ -25,10 +25,10 @@ SL_dir = basedir + 'masks/searchlights/'
 savedir_cor = savedir + 'time_correlations/'
 
 # Get subjects age - vector is in the same order as the subject files in the datadir
-CBU_info = io.loadmat(basedir + 'subinfo_CBU_age.mat')
-var = 'subinfo_CBU_age'
+CBU_info = io.loadmat(basedir + 'subinfo_CBU_age_group.mat')
+var = 'info_CBU_age_group'
 CBU_age = CBU_info[var]
-age = CBU_age[:, 1]
+age = CBU_age[:, 2]
 
 # Get searchlight info
 nregs=5204

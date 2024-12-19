@@ -9,8 +9,10 @@ from statesegmentation import GSBS
 from joblib import Parallel, delayed
 from compute_overlap_1swindow import compute_overlap_1swindow
 import random
+import pandas as pd
+import pingouin as pg
 
-#TODO read me: these time x xtime correlations are based on whole group hyperaligned individual data
+#these time x time correlations are based on whole group hyperaligned individual data
 
 ntime = 192
 nr_parallel_jobs = 30
@@ -146,9 +148,12 @@ def ss_GSBS(SL:int,subjects:list, GSBSdir):
     np.save(savename_strengths,strengths_individual_all)
     #np.save(savename_tdists, tdists_individual_all)
 
-#SLs=np.array([1874,2466]) #SL Linda did already run this # visual, vmPFC
-SLs=np.array([692,2463]) #SL superior temporal gyrus, superior frontal gyrus
-Parallel(n_jobs=3)(delayed(ss_GSBS)(SL=SL, subjects=subjects, GSBSdir = GSBSdir) for SL in SLs)
+# This is were you actually run the single subject GSBS
+#SLs=np.array([1874,2466]) #visual and vmPFC SLs
+#SLs=np.array([692,2463]) #superior temporal gyrus and superior frontal gyrus SLs
+SLs=np.array([692,1874,2463,2466])
+SL_names = ['STG', 'visual', 'SFG', 'vmPFC']
+#Parallel(n_jobs=3)(delayed(ss_GSBS)(SL=SL, subjects=subjects, GSBSdir = GSBSdir) for SL in SLs)
 
 # create empty arrays for overlap
 rel_overlap_events_sub = np.full([len(SLs), nsub], 0).astype(float)
@@ -180,7 +185,7 @@ for indSL, SL in enumerate(SLs):
                                            event_boundaries_m1s)
     abs_overlap_events_sub[indSL, :] = abs_overlap
 
-    #correlatie met leeftijd
+    #correlation with age
     age_corr_abs_overlap[indSL], pval_age_corr_abs_overlap[indSL] = stats.spearmanr(age, abs_overlap_events_sub[indSL, :])
     age_corr_rel_overlap[indSL], pval_age_corr_rel_overlap[indSL] = stats.spearmanr(age, rel_overlap_events_sub[indSL, :])
 
@@ -195,3 +200,38 @@ for indSL, SL in enumerate(SLs):
     #boundary ISS group
     for gr in np.arange(0,34):
         group_boundISS[indSL, gr] = np.mean(boundISS[indSL,sub_groupID == gr])
+
+# spearman correlation age group x median duration without and with group_boundISS as covariate for 4 selected SLs
+# load group data
+data = loadmat('/home/sellug/wrkgrp/Selma/CamCAN_movie/highpass_filtered_intercept2/34groups/analyses_results/GSBS_obj.mat')
+median_duration = data['median_duration']
+median_duration = median_duration[SLs,:]
+ngroups = 34
+groups = np.arange(ngroups)
+nregs = 4
+
+# empty arrays
+age_dur = np.full([nregs], 0).astype(float)
+pval_age_dur = np.full([nregs], 0).astype(float)
+age_dur_iss = np.full([nregs], 0).astype(float)
+pval_age_dur_iss = np.full([nregs], 0).astype(float)
+age_stateISS = np.full([nregs], 0).astype(float)
+pval_age_stateISS = np.full([nregs], 0).astype(float)
+
+for SL in range(nregs):
+     # Calculate the Spearman correlation between the ordinal (group) and continuous variable (median duration)
+     age_dur[SL], pval_age_dur[SL] = stats.spearmanr(groups, median_duration[SL,:])
+          # Calculate partial correlation with ISS as covariate
+     data = {'x':groups, 'y':median_duration[SL,:], 'cv1':group_boundISS[SL,:]}
+     df = pd.DataFrame(data)
+     spearman_age_dur_iss = pg.partial_corr(data=df, x='x', y='y', covar='cv1', method='spearman')
+     age_dur_iss[SL] = spearman_age_dur_iss['r']
+     pval_age_dur_iss[SL] = spearman_age_dur_iss['p-val']
+     age_stateISS[SL], pval_age_stateISS[SL] = stats.spearmanr(groups, group_boundISS[SL, :])
+
+print("Age x Duration:", age_dur)
+print("P-value Age x Duration:", pval_age_dur)
+print("Age x Duration - covar boundary ISS:", age_dur_iss)
+print("P-value Age x Duration - covar boundary ISS:", pval_age_dur_iss)
+print("Age x State ISS:", age_stateISS)
+print("P-value Age x State ISS:", pval_age_stateISS)

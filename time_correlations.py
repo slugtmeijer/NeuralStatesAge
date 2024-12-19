@@ -46,12 +46,12 @@ row_titles = ['SL1874', 'SL2466']
 
 # Load and plot data for each subplot
 filenames = [
-    (datadir + 'GR0/GSBS_GR0_stride2_radius3_minvox15_SL1874.npy', 'youngest'),
-    (datadir + 'GR17/GSBS_GR17_stride2_radius3_minvox15_SL1874.npy', 'middle'),
-    (datadir + 'GR33/GSBS_GR33_stride2_radius3_minvox15_SL1874.npy', 'oldest'),
-    (datadir + 'GR0/GSBS_GR0_stride2_radius3_minvox15_SL2466.npy', 'youngest'),
-    (datadir + 'GR17/GSBS_GR17_stride2_radius3_minvox15_SL2466.npy', 'middle'),
-    (datadir + 'GR33/GSBS_GR33_stride2_radius3_minvox15_SL2466.npy', 'oldest')
+    (datadir + 'GR0/GSBS_GR0_stride2_radius3_minvox15_SL1874.npy', 'young'),
+    (datadir + 'GR16/GSBS_GR16_stride2_radius3_minvox15_SL1874.npy', 'middle'),
+    (datadir + 'GR33/GSBS_GR33_stride2_radius3_minvox15_SL1874.npy', 'old'),
+    (datadir + 'GR0/GSBS_GR0_stride2_radius3_minvox15_SL2466.npy', 'young'),
+    (datadir + 'GR16/GSBS_GR16_stride2_radius3_minvox15_SL2466.npy', 'middle'),
+    (datadir + 'GR33/GSBS_GR33_stride2_radius3_minvox15_SL2466.npy', 'old')
 ]
 
 # Plot data
@@ -59,19 +59,18 @@ for i, (filename, title) in enumerate(filenames):
     row, col = divmod(i, 3)
     GSBS_obj = np.load(filename, allow_pickle=True).item()
     plot_time_correlation_boundaries(ax=ax[row, col], data=GSBS_obj.x, GSBS=GSBS_obj)
-    #ax[row, col].set_title(title)
+    ax[row, col].set_title(title)
 
     # Rotate x-axis labels and adjust their position
     ax[row, col].tick_params(axis='x', rotation=45, labelsize=8)
     ax[row, col].xaxis.set_label_coords(0.5, -0.2)
 
 # Set row titles
-# for i, row_title in enumerate(row_titles):
-#     f.text(0.08, 0.72 - i * 0.43, row_title, ha='right', va='center', fontsize=16, fontweight='bold',
-#            rotation='vertical')
+for i, row_title in enumerate(row_titles):
+    f.text(0.08, 0.72 - i * 0.43, row_title, ha='right', va='center', fontsize=16, fontweight='bold', rotation='vertical')
 
 # Set overall title
-# plt.suptitle('Time Correlation', fontsize=20, y=0.95)
+#plt.suptitle('Time Correlation', fontsize=20, y=0.95)
 
 # Adjust layout
 plt.tight_layout(rect=[0.1, 0.05, 1, 0.93])
@@ -82,7 +81,7 @@ plt.subplots_adjust(hspace=0.4, wspace=0.3)
 # Adjust bottom margin for x-axis labels
 f.subplots_adjust(bottom=0.1)
 
-#plt.savefig(savedir + 'time_correlations_SLs_1874_2466.png', bbox_inches='tight', dpi=300)
+plt.savefig(savedir + 'time_correlations_SLs_1874_2466.pdf', bbox_inches='tight', dpi=300)
 
 # Display the plot
 plt.show()

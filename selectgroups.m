@@ -1,7 +1,11 @@
 %Select age groups
 
-subinfo = open('/home/sellug/wrkgrp/Selma/subinfo_CBU_CC_age_groups.mat');
-subinfo = subinfo.subinfo_CBU_CC_age_groups;
+subinfo = open('/home/sellug/wrkgrp/Selma/subinfo.mat');
+CBUID = cellfun(@(x) str2double(x(4:end)), subinfo.CBUID);
+% Remove the first 2 characters from var2
+CCID = cellfun(@(x) str2double(x(3:end)), subinfo.CCID);
+% Combine all variables into a matrix
+subinfo = [CBUID', CCID, subinfo.age];
 
 [~,idx] = sort(subinfo(:,3)); %sort on age
 sortinfo = subinfo(idx,:);

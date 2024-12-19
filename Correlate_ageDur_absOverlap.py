@@ -60,4 +60,10 @@ plt.legend()
 # Show the plot
 plt.show()
 
+
+# Get average overlap of the 4 searchlights that are also used in single subject GSBS
+SL_ind = [692, 2463, 1874, 2466]
+# Extract values from abs_overlap at indices specified in SL_ind
+values_at_indices = abs_overlap[SL_ind]
+
 print
