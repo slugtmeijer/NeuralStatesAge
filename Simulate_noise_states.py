@@ -1,6 +1,6 @@
 import numpy as np
 import sys
-sys.path.append('/home/sellug/wrkgrp/Selma/scripts/Noise_simulation/')
+sys.path.append('/home/lingee/wrkgrp/Selma/scripts/Noise_simulation/')
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
@@ -10,8 +10,8 @@ import seaborn
 from simulation import simulate_noise, simulate_time_variability
 
 # parameters
-loaddir = '/home/sellug/wrkgrp/Selma/CamCAN_movie/highpass_filtered_intercept2/34groups/GSBS_results/searchlights/'
-savedir = '/home/sellug/wrkgrp/Selma/CamCAN_movie/highpass_filtered_intercept2/34groups/' + 'noise_simulation/'
+loaddir = '/home/lingee/wrkgrp/Selma/CamCAN_movie/highpass_filtered_intercept2/34groups/GSBS_results/searchlights/'
+savedir = '/home/lingee/wrkgrp/Selma/CamCAN_movie/highpass_filtered_intercept2/34groups/' + 'noise_simulation/'
 noiseperc = [0.05, 0.5, 1]
 noiseBOLD = [0]
 noiseBOLD_name = [' nonBOLD', ' BOLD']
@@ -59,3 +59,5 @@ plt.ylabel('number of states')
 plt.tight_layout()
 name = 'group' + str(group) + ' SLs' + ' offset_'
 plt.savefig(savedir + name + 'nstates_c.pdf')
+
+print

@@ -14,7 +14,7 @@ from create_folder import create_folder
 
 groups = 34 #TODO change for 1 or 34 groups - for 1 group don't run age analyses
 
-basedir = '/home/sellug/wrkgrp/Selma/CamCAN_movie/'
+basedir = '/home/lingee/wrkgrp/Selma/CamCAN_movie/'
 ngroups_dir = basedir + 'highpass_filtered_intercept2/' + str(groups) + 'groups/'
 datadir = ngroups_dir + 'GSBS_results/searchlights/'
 savedir = ngroups_dir + 'analyses_results/'
@@ -83,10 +83,22 @@ maxk=96
 # # Saving all variables in a single .npy file
 # np.savez(savedir + 'key_GSBS_output.npz', **data_to_save)
 
-# TODO next 3 lines only if you only run the second half - load variables
+# TODO next 5 lines only if you only run the second half - load variables
 data = loadmat(savedir + 'GSBS_obj.mat')
 median_duration = data['median_duration']
 variability_duration = data['variability_duration']
+bounds = data['bounds']
+binbounds=bounds>0
+
+# compare youngest group with 11 older groups on median duration for 4 SLs used in simulations
+SL_ind = [692, 2463, 1874, 2466]
+n_binbounds = np.sum(binbounds, axis=2)
+values_for_SLindices = n_binbounds[SL_ind, :]
+values_for_SLindices_gr0 = values_for_SLindices[:,0]
+values_for_SLindices_grOlder = values_for_SLindices[:,-11:]
+means_old = np.mean(values_for_SLindices_grOlder, axis=1)
+mins_old = np.min(values_for_SLindices_grOlder, axis=1)
+maxs_old = np.max(values_for_SLindices_grOlder, axis=1)
 
 # edit Linda - 04/09/24 check group similarity
 cs = np.corrcoef(np.transpose(median_duration))
@@ -294,8 +306,8 @@ if cmt_pval_age_dur:
     idx_keep = np.where(mean_pval_age_dur < max(cmt_pval_age_dur))
     mean_age_dur_cmt = np.zeros_like(mean_age_dur) * np.nan
     mean_age_dur_cmt[idx_keep] = mean_age_dur[idx_keep]
-    map_nifti = nib.Nifti1Image(mean_age_dur_cmt, affine)
-    nib.save(map_nifti, savedir + 'analysis_age_durations_cmt.nii')
+    #map_nifti = nib.Nifti1Image(mean_age_dur_cmt, affine)
+    #nib.save(map_nifti, savedir + 'analysis_age_durations_cmt.nii')
 if cmt_pval_age_dur_iss:
     idx_keep = np.where(mean_pval_age_dur_iss < max(cmt_pval_age_dur_iss))
     mean_age_dur_iss_cmt = np.zeros_like(mean_age_dur_iss) * np.nan

@@ -16,7 +16,7 @@ groups=34
 
 Nregs = 5204
 Ntime = 192
-basedir = '/home/sellug/wrkgrp/Selma/CamCAN_movie/'
+basedir = '/home/lingee/wrkgrp/Selma/CamCAN_movie/'
 ngroups_dir = basedir + 'highpass_filtered_intercept2/' + str(groups) + 'groups/'
 savedir = ngroups_dir + 'analyses_results/event_boundaries_binary_1swindow/' #TODO
 create_folder(savedir)

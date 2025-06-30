@@ -19,7 +19,7 @@ nr_parallel_jobs = 30
 
 
 # Set paths
-basedir = '/home/sellug/wrkgrp/Selma/CamCAN_movie/'
+basedir = '/home/lingee/wrkgrp/Selma/CamCAN_movie/'
 denoiseddir = basedir + 'highpass_filtered_intercept2/1groups/'
 datadir = denoiseddir + 'preGSBS/age_groups/GR0/hyperaligned/'
 GSBSdir = denoiseddir + 'GSBS_results/searchlights/GR0/'
@@ -37,7 +37,7 @@ nsub=len(age)
 
 
 sub_groupID = np.full([nsub], 0).astype(float)
-subgroup = loadmat('/home/sellug/wrkgrp/Selma/ids_34x577.mat')
+subgroup = loadmat('/home/lingee/wrkgrp/Selma/ids_34x577.mat')
 for sub in np.arange(0,nsub):
     ID = CBU_info['subinfo_CBU_age'][sub,0]
     for gr in np.arange(0,34):
@@ -148,7 +148,7 @@ def ss_GSBS(SL:int,subjects:list, GSBSdir):
     np.save(savename_strengths,strengths_individual_all)
     #np.save(savename_tdists, tdists_individual_all)
 
-# This is were you actually run the single subject GSBS
+# This is where you actually run the single subject GSBS
 #SLs=np.array([1874,2466]) #visual and vmPFC SLs
 #SLs=np.array([692,2463]) #superior temporal gyrus and superior frontal gyrus SLs
 SLs=np.array([692,1874,2463,2466])
@@ -203,11 +203,12 @@ for indSL, SL in enumerate(SLs):
 
 # spearman correlation age group x median duration without and with group_boundISS as covariate for 4 selected SLs
 # load group data
-data = loadmat('/home/sellug/wrkgrp/Selma/CamCAN_movie/highpass_filtered_intercept2/34groups/analyses_results/GSBS_obj.mat')
+data = loadmat('/home/lingee/wrkgrp/Selma/CamCAN_movie/highpass_filtered_intercept2/34groups/analyses_results/GSBS_obj.mat')
 median_duration = data['median_duration']
 median_duration = median_duration[SLs,:]
 ngroups = 34
 groups = np.arange(ngroups)
+nregs = 4
 nregs = 4
 
 # empty arrays

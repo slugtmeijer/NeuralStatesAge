@@ -5,7 +5,7 @@ import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import sys
-sys.path.append('/home/sellug/wrkgrp/Selma/scripts/Noise_simulation/')
+sys.path.append('/home/lingee/wrkgrp/Selma/scripts/Noise_simulation/')
 from plot_time_correlations import plot_time_correlation_boundaries
 
 
@@ -26,7 +26,9 @@ def simulate_noise(group, SL, rep, noiseperc, noiseBOLD, noiseBOLD_name, peak_de
             plot_time_correlation_boundaries(ax=ax[0], data=data)
             ax[0].set_title('original')
             # Set overall title
-            plt.suptitle(name, fontsize=20, y=0.9)
+            # plt.suptitle(name, fontsize=20, y=0.9)
+            ax[0].set_xticks([])  # Remove x-ticks
+            ax[0].set_yticks([])  # Remove y-ticks
 
         for idx_nperc, nperc in enumerate(noiseperc):
 
@@ -56,6 +58,8 @@ def simulate_noise(group, SL, rep, noiseperc, noiseBOLD, noiseBOLD_name, peak_de
             if rep == 0:
                 plot_time_correlation_boundaries(ax=ax[idx_nperc+1], data=newdata)
                 ax[idx_nperc+1].set_title('noise ' +  str(nperc*100) + ' %')
+                ax[idx_nperc + 1].set_xticks([])  # Remove x-ticks
+                ax[idx_nperc + 1].set_yticks([])  # Remove y-ticks
 
 
         # Adjust layout
@@ -75,8 +79,8 @@ def simulate_time_variability(group, SL, loaddir, savedir):
 
     nstates = np.zeros((3,3))
     name = 'group' + str(group) + ' SL' + str(SL) + ' offset '
-    f, ax = plt.subplots(1, 3, figsize=(15, 3))
-    plt.suptitle(name, fontsize=20, y=0.9)
+    f, ax = plt.subplots(1, 3, figsize=(15, 4)) # SL was 15, 3
+    #plt.suptitle(name, fontsize=20, y=0.9)
 
     for offset in range(0,3):
         for rep in range(0, 3):
@@ -106,6 +110,14 @@ def simulate_time_variability(group, SL, loaddir, savedir):
             GSBS_states.fit()
 
             nstates[offset,rep] = GSBS_states.nstates
+
+    # Ensure the same ticks for all subplots # SL new section for uniform ticks
+    for subplot in ax:
+        x_ticks = subplot.get_xticks()
+        y_ticks = subplot.get_yticks()
+        uniform_ticks = sorted(set(x_ticks).union(y_ticks))  # Combine and sort unique ticks
+        subplot.set_xticks(uniform_ticks)
+        subplot.set_yticks(uniform_ticks)
 
     plt.savefig(savedir + name + '.pdf')
     np.save(savedir + name, nstates)

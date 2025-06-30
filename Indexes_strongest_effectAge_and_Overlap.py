@@ -7,7 +7,7 @@ import os
 
 groups = 34
 
-basedir = '/home/sellug/wrkgrp/Selma/CamCAN_movie/'
+basedir = '/home/lingee/wrkgrp/Selma/CamCAN_movie/'
 ngroups_dir = basedir + 'highpass_filtered_intercept2/' + str(groups) + 'groups/'
 GSBSdir = ngroups_dir + 'analyses_results/'
 
@@ -38,7 +38,7 @@ age_dur2 = np.nan_to_num(age_dur, nan=0.0)
 sorted_indices = np.argsort(age_dur2)[::-1]
 
 # Select the top 5 indices
-top_10_indices = sorted_indices[:10]
+top_10_indices = sorted_indices[:32]
 
 # Get the top 5 values
 top_10_values = age_dur2[top_10_indices]

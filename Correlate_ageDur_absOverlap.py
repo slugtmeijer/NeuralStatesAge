@@ -5,7 +5,7 @@ from scipy.stats import pearsonr, linregress
 from scipy.stats import spearmanr
 
 # Define the directory
-basedir = '/home/sellug/wrkgrp/Selma/CamCAN_movie/'
+basedir = '/home/lingee/wrkgrp/Selma/CamCAN_movie/'
 vector1_dir = basedir + 'highpass_filtered_intercept2/34groups/analyses_results/'
 vector2_dir = vector1_dir + 'event_boundaries_binary_1swindow/'
 

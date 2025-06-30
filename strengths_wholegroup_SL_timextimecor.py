@@ -15,7 +15,7 @@ from scipy.spatial.distance import cdist
 ntime = 192
 
 # Set paths
-basedir = '/home/sellug/wrkgrp/Selma/CamCAN_movie/'
+basedir = '/home/lingee/wrkgrp/Selma/CamCAN_movie/'
 denoiseddir = basedir + 'highpass_filtered_intercept2/1groups/'
 datadir = denoiseddir + 'preGSBS/age_groups/GR0/hyperaligned/'
 GSBSdir = denoiseddir + 'GSBS_results/searchlights/GR0/'
