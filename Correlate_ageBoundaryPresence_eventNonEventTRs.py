@@ -10,7 +10,7 @@ import seaborn as sns
 from scipy.stats import linregress
 
 # Directories
-base_dir = '/home/sellug/wrkgrp/Selma/CamCAN_movie/'
+base_dir = '/home/lingee/wrkgrp/Selma/CamCAN_movie/'
 group_dir = base_dir + 'highpass_filtered_intercept2/34groups/'
 save_dir = group_dir + 'analyses_results/'
 eventLoc_dir = save_dir + 'event_boundaries_binary_1swindow/'
@@ -92,15 +92,15 @@ mean_boundary_presence_nonevents = mean_selected_binbounds_nonevents.mean(axis=0
 plt.figure(figsize=(10, 6))
 
 # Scatter points for events
-scatter_events = plt.scatter(group, mean_boundary_presence_events, color='blue', alpha=0.7, label='Events')
+scatter_events = plt.scatter(group, mean_boundary_presence_events, color='blue', alpha=0.7, label='On event')
 # Scatter points for non-events
-scatter_nonevents = plt.scatter(group, mean_boundary_presence_nonevents, color='green', alpha=0.7, label='Non-Events')
+scatter_nonevents = plt.scatter(group, mean_boundary_presence_nonevents, color='green', alpha=0.7, label='Off event')
 
 # Custom legend handles for correlation
 correlation_events = plt.Line2D([], [], color='blue', marker='o', linestyle='None', markersize=6,
-                               label=r'Events $r_s$: {:.2f}'.format(mean_age_boundaryPresence_events))
+                               label=r'On event $r_s$: {:.2f}'.format(mean_age_boundaryPresence_events))
 correlation_nonevents = plt.Line2D([], [], color='green', marker='o', linestyle='None', markersize=6,
-                                  label=r'Non-Events $r_s$: {:.2f}'.format(mean_age_boundaryPresence_nonevents))
+                                  label=r'Off events $r_s$: {:.2f}'.format(mean_age_boundaryPresence_nonevents))
 
 
 
@@ -108,13 +108,13 @@ correlation_nonevents = plt.Line2D([], [], color='green', marker='o', linestyle=
 handles = [correlation_events, correlation_nonevents]
 
 # Add combined legend with explicit handles
-plt.legend(handles=handles, loc='upper right', frameon=True, fontsize=14)
+plt.legend(handles=handles, loc='upper right', frameon=True, fontsize=16)
 
 plt.xlabel('Age group', fontsize=16)
 plt.ylabel('Mean boundary presence', fontsize=16)
-plt.title('Mean boundary presence across searchlights by age group for events and non-events', fontsize=16)
-plt.tick_params(axis='both', which='major', labelsize=14)
-plt.savefig(save_dir + 'mean_boundary_presence_by_age.pdf', format='pdf', dpi=300)
+plt.title('Mean boundary presence separated by on event and off event TRs', fontsize=16)
+plt.tick_params(axis='both', which='major', labelsize=16)
+plt.savefig(save_dir + 'mean_boundary_presence_by_age.png', format='png', dpi=300)
 plt.show()
 
 

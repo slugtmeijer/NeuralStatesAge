@@ -14,7 +14,7 @@ from create_folder import create_folder
 
 groups = 34 #TODO change for 1 or 34 groups - for 1 group don't run age analyses
 
-basedir = '/home/sellug/wrkgrp/Selma/CamCAN_movie/'
+basedir = '/home/lingee/wrkgrp/Selma/CamCAN_movie/'
 ngroups_dir = basedir + 'highpass_filtered_intercept2/' + str(groups) + 'groups/'
 datadir = ngroups_dir + 'GSBS_results/searchlights/'
 savedir = ngroups_dir + 'analyses_results/'
@@ -306,8 +306,8 @@ if cmt_pval_age_dur:
     idx_keep = np.where(mean_pval_age_dur < max(cmt_pval_age_dur))
     mean_age_dur_cmt = np.zeros_like(mean_age_dur) * np.nan
     mean_age_dur_cmt[idx_keep] = mean_age_dur[idx_keep]
-    map_nifti = nib.Nifti1Image(mean_age_dur_cmt, affine)
-    nib.save(map_nifti, savedir + 'analysis_age_durations_cmt.nii')
+    #map_nifti = nib.Nifti1Image(mean_age_dur_cmt, affine)
+    #nib.save(map_nifti, savedir + 'analysis_age_durations_cmt.nii')
 if cmt_pval_age_dur_iss:
     idx_keep = np.where(mean_pval_age_dur_iss < max(cmt_pval_age_dur_iss))
     mean_age_dur_iss_cmt = np.zeros_like(mean_age_dur_iss) * np.nan

@@ -3,12 +3,13 @@
 # =============================================================================
 # Mode 1: Categorical age (groups) vs median duration - use with 34 group means
 # Mode 2: Continuous age vs boundary strength - use with individual subject data
-MODE = 2  # Change this to 1 or 2
+MODE = 1  # Change this to 1 or 2
 
 from scipy import io
 from scipy.io import loadmat
 from scipy import stats
 import sys
+from scipy.optimize import curve_fit
 
 sys.path.append("..")
 import nibabel as nib
@@ -354,82 +355,79 @@ for rel in relationships:
 print(f"  - {analysis_name}_relationship_analysis_results.npz (all numerical results)")
 
 
-# # Compare models
-# # For model comparison, use only the curve-fitted relationships (not correlations)
-# comparison_relationships = ['linear', 'exponential', 'logarithmic', 'quadratic']
-#
-# print("Finding best model for each searchlight (CORRECTED)...")
-# best_models = []
-# model_performance = {'linear': 0, 'exponential': 0, 'logarithmic': 0, 'quadratic': 0}
-#
-# for SL in range(nregs):
-#     # Get R² values for curve-fitted models only
-#     aic_values = {
-#         'linear': results['linear']['aic'][SL],
-#         'exponential': results['exponential']['aic'][SL],
-#         'logarithmic': results['logarithmic']['aic'][SL],
-#         'quadratic': results['quadratic']['aic'][SL]
-#     }
-#
-#     # Find model with LOWEST AIC (best model)
-#     best_model = min(aic_values.keys(), key=lambda k: aic_values[k])
-#     best_models.append(best_model)
-#     model_performance[best_model] += 1
-#
-# # Print simple summary
-# print("\n=== BEST MODEL SUMMARY (AIC) ===")
-# print("Best fitting relationship (using AIC - lower is better):")
-# total_searchlights = len(best_models)
-#
-# for model, count in sorted(model_performance.items(), key=lambda x: x[1], reverse=True):
-#     percentage = (count / total_searchlights) * 100
-#     print(f"{model}: {count}/{total_searchlights} searchlights ({percentage:.1f}%)")
-#
-# # Find the overall winner
-# overall_best = max(model_performance.keys(), key=lambda k: model_performance[k])
-# print(f"\nOVERALL WINNER: {overall_best.upper()}")
-# print(f"Best fits {model_performance[overall_best]} out of {total_searchlights} searchlights ({(model_performance[overall_best] / total_searchlights) * 100:.1f}%)")
-#
-# # Create a simple map showing which model is best for each voxel
-# print("Creating best model map...")
-#
-# # Map values: 1=linear, 2=exponential, 3=logarithmic, 4=quadratic
-# model_to_number = {'linear': 1, 'exponential': 2, 'logarithmic': 3, 'quadratic': 4}
-#
-# best_model_brain_map = np.zeros((x_max, y_max, z_max))
-# counter = np.zeros((x_max, y_max, z_max))
-#
-# for SL_idx, voxel_indices in enumerate(tqdm(searchlights, desc="Creating best model map")):
-#     best_model = best_models[SL_idx]
-#     model_number = model_to_number[best_model]
-#
-#     for vox in voxel_indices:
-#         x, y, z = coordinates[vox]
-#         best_model_brain_map[x, y, z] += model_number
-#         counter[x, y, z] += 1
-#
-# # Take average (most frequent model per voxel)
-# final_map = np.divide(best_model_brain_map, counter, out=np.zeros_like(best_model_brain_map), where=counter != 0)
-# final_map = np.round(final_map).astype(np.int16)
-#
-# # Save the map
-# map_nifti = nib.Nifti1Image(final_map, affine)
-# nib.save(map_nifti, savedir + f'{analysis_name}_best_relationship_map.nii')
-#
-# print(f"\nSaved: best_relationship_map.nii")
-# print("Map legend: 1=Linear, 2=Exponential, 3=Logarithmic, 4=Quadratic")
-#
-# # Save simple results
-# np.savez(savedir + f'{analysis_name}_simple_best_models.npz',
-#          best_models=best_models,
-#          model_counts=model_performance,
-#          overall_best=overall_best)
-#
-# print(f"\nResults saved to: simple_best_models.npz")
+# Compare models
+# For model comparison, use only the curve-fitted relationships (not correlations)
+comparison_relationships = ['linear', 'exponential', 'logarithmic', 'quadratic']
 
+print("Finding best model for each searchlight (CORRECTED)...")
+best_models = []
+model_performance = {'linear': 0, 'exponential': 0, 'logarithmic': 0, 'quadratic': 0}
 
+for SL in range(nregs):
+    # Get R² values for curve-fitted models only
+    aic_values = {
+        'linear': results['linear']['aic'][SL],
+        'exponential': results['exponential']['aic'][SL],
+        'logarithmic': results['logarithmic']['aic'][SL],
+        'quadratic': results['quadratic']['aic'][SL]
+    }
 
-# Add this code after the model comparison section and before the end of the script
+    # Find model with LOWEST AIC (best model)
+    best_model = min(aic_values.keys(), key=lambda k: aic_values[k])
+    best_models.append(best_model)
+    model_performance[best_model] += 1
+
+# Print simple summary
+print("\n=== BEST MODEL SUMMARY (AIC) ===")
+print("Best fitting relationship (using AIC - lower is better):")
+total_searchlights = len(best_models)
+
+for model, count in sorted(model_performance.items(), key=lambda x: x[1], reverse=True):
+    percentage = (count / total_searchlights) * 100
+    print(f"{model}: {count}/{total_searchlights} searchlights ({percentage:.1f}%)")
+
+# Find the overall winner
+overall_best = max(model_performance.keys(), key=lambda k: model_performance[k])
+print(f"\nOVERALL WINNER: {overall_best.upper()}")
+print(f"Best fits {model_performance[overall_best]} out of {total_searchlights} searchlights ({(model_performance[overall_best] / total_searchlights) * 100:.1f}%)")
+
+# Create a simple map showing which model is best for each voxel
+print("Creating best model map...")
+
+# Map values: 1=linear, 2=exponential, 3=logarithmic, 4=quadratic
+model_to_number = {'linear': 1, 'exponential': 2, 'logarithmic': 3, 'quadratic': 4}
+
+best_model_brain_map = np.zeros((x_max, y_max, z_max))
+counter = np.zeros((x_max, y_max, z_max))
+
+for SL_idx, voxel_indices in enumerate(tqdm(searchlights, desc="Creating best model map")):
+    best_model = best_models[SL_idx]
+    model_number = model_to_number[best_model]
+
+    for vox in voxel_indices:
+        x, y, z = coordinates[vox]
+        best_model_brain_map[x, y, z] += model_number
+        counter[x, y, z] += 1
+
+# Take average (most frequent model per voxel)
+final_map = np.divide(best_model_brain_map, counter, out=np.zeros_like(best_model_brain_map), where=counter != 0)
+final_map = np.round(final_map).astype(np.int16)
+
+# Save the map
+map_nifti = nib.Nifti1Image(final_map, affine)
+nib.save(map_nifti, savedir + f'{analysis_name}_best_relationship_map.nii')
+
+print(f"\nSaved: best_relationship_map.nii")
+print("Map legend: 1=Linear, 2=Exponential, 3=Logarithmic, 4=Quadratic")
+
+# Save simple results
+np.savez(savedir + f'{analysis_name}_simple_best_models.npz',
+         best_models=best_models,
+         model_counts=model_performance,
+         overall_best=overall_best)
+
+print(f"\nResults saved to: simple_best_models.npz")
+
 
 # =============================================================================
 # AGE EFFECTS VISUALIZATION (MODE 1)
@@ -470,7 +468,7 @@ if MODE == 1:
         print("No significant Spearman correlations found for direction analysis")
 
 # =============================================================================
-# ENHANCED AGE EFFECTS VISUALIZATION (MODE 1) - SUBTLE INDIVIDUAL POINTS
+# ENHANCED AGE EFFECTS VISUALIZATION (MODE 1)
 # =============================================================================
 if MODE == 1:
     print("Creating enhanced age effects visualization for MODE 1...")
@@ -503,6 +501,17 @@ if MODE == 1:
 
         # Calculate individual differences for each searchlight
         individual_differences = old_data - young_data
+
+        # Calculate additional statistics on duration differences
+        diff_mean = np.mean(individual_differences)
+        diff_std = np.std(individual_differences)
+        diff_range = np.max(individual_differences) - np.min(individual_differences)
+
+        print(f"Mean duration difference: {diff_mean:.3f} seconds")
+        print(f"Standard deviation: {diff_std:.3f} seconds")
+        print(f"Range of duration differences: {diff_range:.3f} seconds")
+        print(f"Min difference: {np.min(individual_differences):.3f} seconds")
+        print(f"Max difference: {np.max(individual_differences):.3f} seconds")
 
         # Count positive and negative differences
         positive_differences = np.sum(individual_differences > 0)
@@ -580,7 +589,7 @@ if MODE == 1:
         text_height = line_height + 2  # Position text 2 units above the line
         ax.text(mid_x, text_height,
                 f'Δ = {mean_difference:.2f} s, ' + r'$\it{p}$' + ' < .001',
-                ha='center', va='bottom', fontsize=12, fontweight='bold',
+                ha='center', va='bottom', fontsize=18, fontweight='bold',
                 bbox=dict(boxstyle="round,pad=0.4", facecolor='white', edgecolor='black',
                           alpha=0.95, linewidth=1))
 
@@ -590,13 +599,14 @@ if MODE == 1:
             annotation_height = min(mean_val + sem_val + 1, line_height - 2)
             ax.text(x_positions[i], annotation_height,
                     f'{mean_val:.2f}±{sem_val:.2f}',
-                    ha='center', va='bottom', fontsize=12, fontweight='bold',
+                    ha='center', va='bottom', fontsize=18, fontweight='bold',
                     bbox=dict(boxstyle="round,pad=0.2", facecolor='white', alpha=0.8))
 
         # Formatting
         ax.set_xticks(x_positions)
-        ax.set_xticklabels(group_labels, fontsize=14, fontweight='bold')
+        ax.set_xticklabels(group_labels, fontsize=18, fontweight='bold')
         ax.set_ylabel('Median State Duration (seconds)', fontsize=16, fontweight='bold')
+        ax.tick_params(axis='y', which='major', labelsize=16)
         ax.set_title(
             f'Age Effects on Median State Duration\n({len(spearman_significant)} Significant Searchlights - Spearman, FDR corrected)',
             fontsize=18, fontweight='bold', pad=25)
@@ -628,13 +638,9 @@ if MODE == 1:
         t_stat, p_val = ttest_rel(old_data, young_data)
         print(f"Paired t-test: t = {t_stat:.4f}, p = {p_val:.6f}")
 
-        # Force display of the plot
+                # Display of the plot
         plt.tight_layout()
         plt.show()
-
-        # Alternative: if plt.show() doesn't work, try this:
-        # plt.draw()
-        # plt.pause(0.001)
 
         # Save the enhanced data used for the plot
         enhanced_plot_data = {
@@ -695,25 +701,37 @@ def plot_example_relationships(n_examples=6):
 
     for i, SL in enumerate(strong_quadratic_indices):
         y_data = dependent_var[SL, :]
+
         # Fit both models
         popt_lin, _ = curve_fit(linear_func, age, y_data)
         popt_quad, _ = curve_fit(quadratic_func, age, y_data)
+
         # Generate smooth curves for plotting
         age_smooth = np.linspace(age.min(), age.max(), 100)
         y_lin = linear_func(age_smooth, *popt_lin)
         y_quad = quadratic_func(age_smooth, *popt_quad)
+
         # Plot
         axes[i].scatter(age, y_data, alpha=0.6, s=20)
         axes[i].plot(age_smooth, y_lin, 'r-', label=f'Linear (AIC={results["linear"]["aic"][SL]:.1f})')
         axes[i].plot(age_smooth, y_quad, 'b-', label=f'Quadratic (AIC={results["quadratic"]["aic"][SL]:.1f})')
-        axes[i].set_title(f'SL {SL}: ΔAIC={aic_differences[SL]:.1f}')
-        axes[i].legend(loc='lower right')  # Force all legends to bottom right
-        axes[i].set_ylim(global_ylim)  # Set consistent y-axis limits
+
+        # Set title with larger font
+        axes[i].set_title(f'SL {SL}: ΔAIC={aic_differences[SL]:.1f}', fontsize=16, fontweight='bold')
+
+        # Set legend with larger font
+        axes[i].legend(loc='lower right', fontsize=12)
+
+        # Set consistent y-axis limits
+        axes[i].set_ylim(global_ylim)
+
+        # Set tick label sizes
+        axes[i].tick_params(axis='both', which='major', labelsize=12)
 
         # Only add labels to the top-left subplot (index 0 in a 2x3 grid)
         if i == 0:  # Top-left subplot
-            axes[i].set_xlabel('Age')
-            axes[i].set_ylabel('Boundary Strength')
+            axes[i].set_xlabel('Age', fontsize=14, fontweight='bold')
+            axes[i].set_ylabel('Boundary Strength', fontsize=14, fontweight='bold')
 
     plt.tight_layout()
     plt.savefig(savedir + f'{analysis_name}_example_quadratic_fits.png', dpi=300)

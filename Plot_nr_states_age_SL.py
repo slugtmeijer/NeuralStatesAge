@@ -1,6 +1,7 @@
 from scipy.io import loadmat
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
 import seaborn
 
 groups = 34
@@ -24,7 +25,7 @@ boundary_counts = np.sum(selected_sls, axis=2)
 state_counts = boundary_counts + 1
 
 # Step 4: Plot
-plt.figure()
+plt.figure(figsize=(12, 10))
 plt.rcParams['font.size'] = 18
 
 # Create x-axis values (group numbers)
@@ -40,12 +41,15 @@ plt.xlabel('Age group')
 plt.ylabel('Number of states')
 
 # Add legend
-plt.legend(loc='upper right')
+plt.legend(loc='upper right', fontsize=18,
+          prop=font_manager.FontProperties(weight='bold'))
+for spine in plt.gca().spines.values():
+   spine.set_linewidth(2)
 plt.tight_layout()
 
 # Save the plot
 name = 'group' + str(groups) + '_SLs_nr_boundaries_age_scatter'
-plt.savefig(savedir + name + '.pdf')
+plt.savefig(savedir + name + '.png')
 plt.close()
 
 
